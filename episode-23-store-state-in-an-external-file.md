@@ -43,3 +43,100 @@ so it's those situations when you might need to reach for something a bit more f
 You can also watch the episode directly here: 0:00-7:25
 
 If you want me to extract specific code examples or explain any part of this episode, just ask!
+
+## Translation
+
+Aqui está a tradução completa do texto do episódio 23, “Armazene o Estado em um Arquivo Externo”, da série "Learn Vue 3: Step by Step":
+
+Certo, até agora revisamos, o quê, duas maneiras diferentes de compartilhar estado entre uma grande variedade de componentes. Então, basicamente, estamos falando aqui de estado global. Precisamos de um estado que possa ser acessado por qualquer componente que precise dele.
+
+Começamos revisando o que é comumente conhecido como prop drilling. É quando você tem um dado, e passa para um componente, e esse componente passa para outro componente, e depois para o filho, e depois para o filho daquele, e assim por diante. E, muito rapidamente, isso se torna muito irritante.
+
+Depois disso, no último episódio, revisamos `provide` e `inject`. Sim, isso funciona, e é melhor. Mas ainda não terminamos.
+
+Então, neste episódio — talvez nos próximos dois episódios — quero te mostrar mais algumas opções que você pode considerar. Vamos lá.
+
+Ainda estou usando aquele exemplo fictício do quiz do episódio anterior. Se eu visitar a Home View, você vai lembrar que nós definimos manualmente o estado inicial do quiz. Se você pensar bem, sempre poderíamos extrair isso e chamar de state.
+
+Selecionamos tudo isso e atribuimos dentro do script setup. Agora, se eu fizer algo assim, teremos exatamente a mesma saída. Nada mudou aqui.
+
+Mas agora pense: existe algo que te impede de armazenar esse estado, ou esses dados — que é o que são — em seu próprio arquivo? Hmm...
+
+Vamos brincar com essa ideia. Que tal criar dentro do diretório src uma nova pasta chamada stores. E dentro dela, criamos um arquivo. Existem convenções para isso, mas por enquanto, vamos manter super simples e chamar de quizStore.
+
+Legal. Agora, vou pegar tudo isso e armazenar nesse novo arquivo. E quero que isso seja acessível de fora. Então, vamos exportar assim:
+
+```js
+export const state = { ... }
+```
+
+Ainda temos um pouco a fazer aqui, mas sim, estamos testando essa ideia. E se pudéssemos colocar o estado em seu próprio arquivo, e então qualquer componente que precise desse estado simplesmente importe esse arquivo? Vamos tentar.
+
+Voltamos para HomeView e agora vamos importar o que chamamos de state. Assim:
+
+```js
+import { state } from '@/stores/quizStore'
+```
+
+Vamos ver se funciona. Troco para o Chrome, dou um refresh, e sim, tudo parece estar funcionando. Mas só para ter certeza, vamos mudar o nome para "My Second Quiz". Voltamos e, sim, parece que só usamos aqui embaixo — mas está funcionando.
+
+Legal, muito interessante. Agora vamos pensar: se eu for até Quiz.vue, vamos remover provide e inject. E, só para constar, isso ainda é uma opção válida. Estou apenas te mostrando abordagens diferentes.
+
+Vamos remover completamente. E com essa abordagem, não vamos mais aceitar props. Em vez disso, vamos importar o estado do quiz diretamente.
+
+Assim posso remover isso. Indo para QuizFooter, limpamos um pouco. Mesmo processo aqui. Veja como estamos eliminando a necessidade de fazer prop drilling.
+
+Finalmente, lá em QuizFooterLinks, posso remover o inject completamente. Mais uma vez, importamos o estado. E então podemos atualizar isso, renomear, o que quiser.
+
+Voltando... sim, tudo está funcionando exatamente como antes. Mas agora estamos usando uma forma alternativa de gerenciar nosso estado — especialmente um estado que precisa ser acessado globalmente ou por muitos componentes.
+
+E sim, lembre-se: você não está limitado a uma única store. Pode criar quantos arquivos quiser. Talvez você tenha um para o usuário atual, outro para o carrinho de compras.
+
+Esse é um ótimo exemplo. Porque com um carrinho de compras, você precisa acessar o estado dele na página inteira, ou seja, em muitos componentes. Talvez no topo, na barra de navegação, você tenha um rótulo mostrando o número de itens no carrinho. Em outro ponto, num painel flutuante, ele mostra o valor total.
+
+Você entendeu a ideia. São situações em que você precisa acessar informações em muitos componentes. E uma store pode fornecer isso pra você.
+
+Mas agora, claro, o que temos é muito simples e não é tão flexível assim. Vou te mostrar o que quero dizer.
+
+Vamos adicionar um botão aqui com o texto “Mudar nome do quiz”. Quando clicar nele, vamos fazer:
+
+```js
+state.name = 'Um novo nome de quiz'
+```
+
+Vamos ver se isso funciona. Voltamos, o botão aparece, clico — e não, não atualiza.
+
+Vamos analisar. Abrimos o Vue DevTools, descemos até o FooterLinks, e sim, atualizamos a propriedade name, mas não está sendo refletido. Isso porque só atualizamos uma string. Em nenhum momento dissemos que deveria ser reativa.
+
+Então voltamos para nossa store e dizemos: "Ok, parece que esse state também precisa ser reativo."
+
+Você já aprendeu sobre ref. Podemos usar reactive, que é especialmente útil para objetos.
+
+```js
+import { reactive } from 'vue'
+
+export const state = reactive({
+  name: 'My Second Quiz',
+  ...
+})
+```
+
+Agora, todos os itens dentro serão reativos.
+
+Vamos testar de novo. Clico no botão e, com certeza, o estado foi atualizado e refletido em qualquer outro lugar que o utilizamos.
+
+Só para deixar bem claro, vamos até QuizHeader, e mudamos para script setup. Importamos nosso state e atualizamos o título para o nome do quiz.
+
+Damos um refresh, mudo o nome — e pronto! Atualizamos o estado global e ele é refletido em qualquer lugar que importamos o arquivo.
+
+É uma abordagem absurdamente simples, mas sabe de uma coisa? Vai funcionar na maioria dos casos. Em muitas situações, isso é tudo o que você precisa.
+
+Só quando começar a construir aplicações mais complexas que talvez encontre obstáculos — e esses obstáculos geralmente são:
+
+"Esse estado mudou, e eu não sei por quê..."
+
+"Preciso reagir quando esse estado muda, para atualizar o localStorage ou fazer uma requisição AJAX."
+
+São nesses casos que você talvez precise de algo mais flexível.
+
+E no próximo episódio, vou te mostrar o que é isso.
